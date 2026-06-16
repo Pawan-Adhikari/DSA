@@ -18,6 +18,6 @@ int main(){
     cout << "Enter your number: ";
     cin >> N;
 
-    cout << "fib(" << N << ")= " << fib(N);
+    cout << "fib(" << N << ")= " << fib(N)<<endl;
     return 0;
 }

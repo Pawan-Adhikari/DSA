@@ -18,6 +18,6 @@ int main(){
     cout << "Enter your number: ";
     cin >> N;
 
-    cout << "TotalSum(" << N << ")= " << sum(N);
+    cout << "TotalSum(" << N << ")= " << sum(N)<<endl;
     return 0;
 }

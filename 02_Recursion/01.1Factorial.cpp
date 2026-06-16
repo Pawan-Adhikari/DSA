@@ -15,6 +15,6 @@ int main(){
     cout << "Enter your number: ";
     cin >> N;
 
-    cout << N << "!= " << factorial(N);
+    cout << N << "!= " << factorial(N)<<endl;;
     return 0;
 }
