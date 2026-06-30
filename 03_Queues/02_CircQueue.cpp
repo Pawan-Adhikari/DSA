@@ -32,6 +32,7 @@ class CircQueue{
                 return 1;
             }
             int ITEM = arr[FRONT];
+            arr[FRONT]=0;
             if (FRONT == REAR){
                 FRONT = -1;
                 REAR = -1;
