@@ -4,13 +4,16 @@ using namespace std;
 class node{
     public:
         int data;
+        node* prev;
         node* next;
-        node(int value=0, node* _next=nullptr){
+        node(int value=0, node* _next=nullptr, node* _prev=nullptr){
             this->data = value;
             this->next = _next;
+            this->prev = _prev;
         }
         void display(){
             cout << "At address: " << this << endl;
+            cout << "Previous Address: " << prev << endl;
             cout << "Data: " << data << endl;
             cout << "Next Address: " << next << endl;
             cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
@@ -28,15 +31,21 @@ class LinkedList{
             cout << "Current List Status:" << endl;
             node* cptr = start;
             if (start==nullptr){
-                cout << "|null | null|" << endl;
+                cout << "|null|null|null|" << endl;
             }
             else{
                 while (cptr != nullptr){
-                    if (cptr->next == nullptr){
-                        cout << "|" << cptr->data << "|" << "null" << "|"; 
+                    if (cptr->prev == nullptr && cptr->next == nullptr){
+                        cout << "|null|" << cptr->data << "|" << "null" << "|"; 
+                    }
+                    else if (cptr->prev == nullptr){
+                        cout << "|null|" << cptr->data << "|" << cptr->next << "|" << "------->" ; 
+                    }
+                    else if (cptr->next == nullptr){
+                        cout << "|" << cptr->prev << "|" << cptr->data << "|" << "null" << "|"; 
                     }
                     else{
-                        cout << "|" << cptr->data << "|" << cptr->next << "|" << "------->" ;
+                        cout << "|" << cptr->prev << "|" << cptr->data << "|" << cptr->next << "|" << "------->" ;
                     }
                     cptr = cptr->next;
                 }
@@ -57,6 +66,7 @@ class LinkedList{
                 start = new_ptr;
             }
             else{
+                start -> prev = new_ptr;
                 new_ptr->next = start;
                 start = new_ptr;
             }
@@ -78,6 +88,7 @@ class LinkedList{
                 while (ptr->next!=nullptr){
                     ptr = ptr->next;
                 }
+                new_ptr->prev = ptr;
                 ptr->next = new_ptr;
             }
             cout << "Successfully added a new node at end! The new node added is:" << endl;
@@ -91,10 +102,6 @@ class LinkedList{
                 return 1;
             }
             new_ptr->data = value;
-            if (start == nullptr){
-                start = new_ptr;
-            }
-            else{
                 node* ptr = start;
                 while (ptr!=nullptr && ptr->data!=target){
                     ptr = ptr->next;
@@ -103,9 +110,13 @@ class LinkedList{
                     cout << "Target node not found!!" << endl;
                     return 1;
                 }
-                new_ptr->next = ptr->next;
-                ptr->next = new_ptr;
-            }
+                node* postptr = ptr->next;
+                if (postptr != nullptr){
+                    postptr->prev = new_ptr;
+                    new_ptr->next = postptr;
+                }
+                    new_ptr->prev = ptr;
+                    ptr->next = new_ptr;
             cout << "Successfully added a new node after specified node: "<< target<<" ! The new node added is:" << endl;
             new_ptr->display();
             return 0;
@@ -121,54 +132,22 @@ class LinkedList{
                 start = new_ptr;
             }
             else{
-                node* ptr = start;
+                node* postptr = start;
                 node* preptr = start;
-                while (ptr!=nullptr && ptr->data!=target){
-                    preptr = ptr;
-                    ptr = ptr->next;
+                while (postptr!=nullptr && postptr->data!=target){
+                    preptr = postptr;
+                    postptr = postptr->next;
                 }
-                if (ptr==nullptr) {
+                if (postptr==nullptr) {
                     cout << "Target node not found!!" << endl;
                     return 1;
                 }
-                new_ptr->next = ptr;
+                postptr->prev = new_ptr;
+                new_ptr->next = postptr;
+                new_ptr->prev = preptr;
                 preptr->next = new_ptr;
             }
             cout << "Successfully added a new node before specified node: "<< target<<" ! The new node added is:" << endl;
-            new_ptr->display();
-            return 0;
-        }
-        bool ins_at_n(int value, int n){
-            node* new_ptr = new node;
-            if (new_ptr==nullptr) {
-                cout << "New Node creation failed. OOM" << endl;
-                return 1;
-            }
-            new_ptr->data = value;
-            if (start == nullptr){
-                start = new_ptr;
-            }
-            else{
-                if (n==1){
-                    new_ptr->next = start;
-                    start = new_ptr;
-                }
-                else{
-                node* ptr = start;
-                node* preptr = start;
-                for (int i=0;i<n-1;i++){
-                    preptr = ptr;
-                    ptr = ptr->next;
-                }
-                if (ptr==nullptr) {
-                    cout << "Target node not found!!" << endl;
-                    return 1;
-                }
-                new_ptr->next = ptr;
-                preptr->next = new_ptr;
-            }
-            }
-            cout << "Successfully added a new node at "<< n << "th position! The new node added is:" << endl;
             new_ptr->display();
             return 0;
         }
@@ -179,7 +158,10 @@ class LinkedList{
             }
             else{
                 node* temp = start;
-                start = start->next;
+                node* posttemp = start->next;
+                if (posttemp!=nullptr) posttemp->prev = nullptr;
+
+                start = posttemp;
                 cout << "Successfully deleted the node at beginning. The deleted node was:" << endl;
                 temp->display();
                 delete temp;
@@ -215,15 +197,15 @@ class LinkedList{
                 while (pretemp!=nullptr && pretemp->data != target){
                     pretemp = pretemp->next;
                 }
-                //cout << "loop exited!" << endl;
                 if (pretemp==nullptr){
                     cout << "Node "<< target <<" not found!!" << endl;
                     return 1;
                 }
-                //cout << "pretemp is not null!" << endl;
                 if (pretemp->next != nullptr){
                     node* temp = pretemp->next;
-                    pretemp->next = temp->next;
+                    node* posttemp = temp->next;
+                    if (posttemp != nullptr) posttemp->prev = pretemp;
+                    pretemp->next = posttemp;
                     cout << "Successfully deleted after specified node: "<< target <<" . The deleted node was:" << endl;
                     temp->display();
                     delete temp;
@@ -236,38 +218,30 @@ class LinkedList{
             return 0;
         }
 
-        bool del_at_n(int n){
+         bool del_before_specific(int target){
             if (start==nullptr){
                 cout << "The list is empty: Underflow!!" << endl;
                 return 1;
             }
             else{
-                if (n==1){
-                    node* temp = start;
-                    start = start->next;
-                    cout << "Successfully deleted the node at "<< n << "th position! The deleted node was:" << endl;
+                node* posttemp = start;
+                while (posttemp!=nullptr && posttemp->data != target){
+                    posttemp = posttemp->next;
+                }
+                if (posttemp==nullptr){
+                    cout << "Node "<< target <<" not found!!" << endl;
+                    return 1;
+                }
+                    node* temp = posttemp->prev;
+                    node* pretemp = temp->prev;
+                    posttemp->prev = pretemp;
+                    pretemp->next = posttemp;
+                    cout << "Successfully deleted before specified node: "<< target <<" . The deleted node was:" << endl;
                     temp->display();
                     delete temp;
                 }
-                else{
-                    node* temp = start;
-                    node* pretemp = start;
-                    for (int i=0;i<n-1;i++){
-                        pretemp = temp;
-                        temp = temp->next;
-                    }
-                    if (temp==nullptr) {
-                        cout << "No node at index " << n <<" found!!" << endl;
-                        return 1;
-                    }
-                    pretemp->next = temp->next;
-                    cout << "Successfully deleted the node at "<< n << "th position! The deleted node was:" << endl;
-                    temp->display();
-                    delete temp;
-                }
-                return 0;
+            return 0;
             }
-        }
 };
 
 int main(){
@@ -292,10 +266,6 @@ int main(){
     myLL.ins_after_specific(5, 3);
     myLL.traverse_display();
 
-    cout << "Insertion at index 3: " << endl;
-    myLL.ins_at_n(6, 3);
-    myLL.traverse_display();
-
     cout << "Deletion at Beginning: " << endl;
     myLL.del_beginning();
     myLL.traverse_display();
@@ -310,14 +280,6 @@ int main(){
 
     cout << "Deletion after 20: " << endl;
     myLL.del_after_specific(20);
-    myLL.traverse_display();
-
-    cout << "Deletion after 3: " << endl;
-    myLL.del_after_specific(3);
-    myLL.traverse_display();
-
-    cout << "Deletion at index 1: " << endl;
-    myLL.del_at_n(1);
     myLL.traverse_display();
 
     cout << "Deletion at Beginning: " << endl;
