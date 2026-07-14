@@ -70,42 +70,30 @@ class PolynomialLL{
             PolynomialLL result;
             node* self = start;
             node* other = other_pol.start;
-            if (self==nullptr) result = other_pol;
-            else if (other==nullptr) result = *this;
-            int i = 0;
             while (self!=nullptr or other != nullptr){
-                if (self == nullptr){
+                if (self == nullptr or (other!=nullptr and other->pow>self->pow)){
                     result.insert(other->coeff, other->pow);
                     other = other->next;
                 }
-                else if (other == nullptr){
+                else if (other == nullptr or self->pow > other->pow){
                     result.insert(self->coeff, self->pow);
                     self = self->next;
                 }
-                else if (self->pow == other-> pow){
+                else {
                     result.insert(self->coeff + other->coeff, self->pow);
                     self = self->next;
                     other = other->next;
                 }
-                else if (self->pow > other->pow){
-                    result.insert(self->coeff, self->pow);
-                    self = self->next;
-                }
-                else if (self->pow < other->pow){
-                    result.insert(other->coeff, other->pow);
-                    other = other->next;
-                }
             }
-
             return result;
         }
-
 };
 
 int main(){
     PolynomialLL pol1;
     PolynomialLL pol2;
     PolynomialLL pol3;
+    PolynomialLL pol4;
 
     PolynomialLL result;
     cout << "Creating Polynomial 1 by insertion one by one: " << endl;
@@ -139,6 +127,11 @@ int main(){
 
     cout << "Adding result with Polynomial 3: " << endl;
     result = result.add_polynomials(pol3);
+    cout << "Result is: " << endl;
+    result.traverse_display();
+
+    cout << "Adding result with Polynomial 4: " << endl;
+    result = result.add_polynomials(pol4);
     cout << "Result is: " << endl;
     result.traverse_display();
 }
